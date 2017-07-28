@@ -33,6 +33,12 @@ body{
 	max-width: 100%;
 }
 
+.clearFix:after{
+  	content: "";
+  	display: table;
+  	clear: both;
+}
+
 .imageWrapper{
 	position: relative;
 	width:100%;
@@ -40,10 +46,15 @@ body{
 	background:yellow;
 }
 
+.infoContainer{
+	margin:4px;
+}
+
 .myCard{
 	position:relative;
 	width:300px;
 	height:400px;
 	margin:10px;
+	float:left;
 	background:green;
 }
