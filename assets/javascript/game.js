@@ -166,11 +166,11 @@ Executed Code and Event Listeners
 //will there be issues with DOM loading like this?
 $( document ).ready(function() {
 
-	game.buildCharacterRow($("#characterSelect"), CHAR_SELECT_CLASS, game.characters, true);
+	game.buildCharacterRow($("#characterSelect"), CHAR_SELECT_CLASS, game.characters, false);
 
     $(document).on('click', ('.'+ CHAR_SELECT_CLASS), function() {
     	if(game.playing === false){//unneccessary?
-    		$("#characterSelect").hide();
+    		//$("#characterSelect").hide();
 	    	var myEnemies = {};
 	    	var myId = $(this).attr("data-character");
 	    	game.playing = true;
@@ -187,7 +187,12 @@ $( document ).ready(function() {
 				}
 			}
 	    	game.enemies = myEnemies;
-    		game.buildCharacterRow($("#enemyCharacters"), ENEMIES_CLASS, game.enemies, true);
+    		game.buildCharacterRow($("#enemyCharacters"), ENEMIES_CLASS, game.enemies, false);
+    		$("#outerCharacterSelectContainer").animate({
+			    top: "-100%",
+			}, "2000", function() {
+				//code executed after animation
+			});
     	} 
     });
 
@@ -204,7 +209,7 @@ $( document ).ready(function() {
     		}else{
 				$(this).remove();
 
-				var villainCard = game.buildCharacterCard(game.defendingCharacter.getId(), game.defendingCharacter, true);
+				var villainCard = game.buildCharacterCard(game.defendingCharacter.getId(), game.defendingCharacter, false);
 				villainCard.addClass(ENEMIES_CLASS);
 				$("#enemyCharacters").append(villainCard);
 
