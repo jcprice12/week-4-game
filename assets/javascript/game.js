@@ -47,9 +47,14 @@ Character.prototype.attack = function(enemy){
 	if(enemy instanceof Character){
 		console.log(this.getName() + " is attacking " + enemy.getName());
 		enemy.health.value = enemy.health.value - this.attackPower.value;
+		this.attackPower.value = this.attackPower.value + this.getBaseAttackPower();
 		if(enemy.health.value > 0){
-			this.health.value = this.health.value - enemy.getCounterAttackPower().value;
-			this.attackPower.value = this.attackPower.value + this.getBaseAttackPower();
+			var damage = this.health.value - enemy.getCounterAttackPower().value;
+			if(damage < 0){
+				this.health.value = 0;
+			} else {
+				this.health.value = damage;
+			}
 		}
 	}
 };
@@ -122,6 +127,25 @@ var game = {
 			var card = this.buildCharacterCard(id, myCharacters[id], float);
 			card.addClass(appendedClass);
 		    myElement.append(card);
+		}
+	},
+
+	executeLoseState: function(){
+		console.log("you have lost");
+	},
+
+	executeWinState: function(){
+		console.log("you have won");
+	},
+
+	removeEnemy: function(){
+		var defendingCharacterId = this.defendingCharacter.getId();
+		$("#fightButtonContainer").css("display", "none");
+		$("#defendingCharacter").html("");
+		delete this.enemies[defendingCharacterId];
+		this.defendingCharacter = null;
+		if($.isEmptyObject(this.enemies)){
+			this.executeWinState();
 		}
 	},
 
@@ -204,6 +228,16 @@ $( document ).ready(function() {
 	$(document).on('mouseup', '.myButtonWrapper', function() {
     	resetButtonSize($(this));
     	game.hero.attack(game.defendingCharacter);
+    	var newHeroCard = game.buildCharacterCard(game.hero.getId(),game.hero,false);
+    	var newDefenderCard = game.buildCharacterCard(game.defendingCharacter.getId(),game.defendingCharacter,false);
+    	$("#chosenCharacter").html(newHeroCard);
+    	$("#defendingCharacter").html(newDefenderCard);
+    	if(game.defendingCharacter.health.value <= 0){
+    		game.removeEnemy();
+    	}
+    	if(game.hero.health.value <= 0){
+    		game.executeLoseState();
+    	}
 	});
 
 	$(document).on('mouseout', '.myButtonWrapper', function() {
