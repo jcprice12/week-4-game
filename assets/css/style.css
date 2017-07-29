@@ -1,13 +1,13 @@
 body{
 	background-image: url("../images/stardust.png");
 	color:#ffd700;
-	font-size: 16px;
+	font-size: 14px;
 	line-height: 1.25;
 	font-family: 'Press Start 2P', cursive;
 }
 
 .cardsHolder{
-
+	
 }
 
 .cardWrapper{
@@ -19,7 +19,7 @@ body{
 	top:0;
 	bottom:0;
 	margin:auto;
-	background:#444349;;
+	background:#444349;
 }
 
 .characterImage{
@@ -39,26 +39,79 @@ body{
   	clear: both;
 }
 
+#combatBoard{
+	width:100%;
+	position:relative;
+	text-align: center;
+}
+
 .combatBoardElement{
-	float:left;
+	display:inline-block;
 }
 
 .imageWrapper{
 	position: relative;
 	width:100%;
-	height:50%;
+	height:66%;
 	background:#000;
 }
 
 .infoContainer{
-	margin:4px;
+	margin:6px;
+}
+
+.left{
+	float:left;
+}
+
+.myButton{
+	background-color: #ffd700;
+	color:#444349;
+	text-align:center;
+	font-size: 26px;
+	display: table-cell;
+	vertical-align: middle;
+}
+
+.myButtonContainer{
+	position:relative;
+	width:240px;
+	height:80px;
+}
+
+#fightButtonContainer{
+	left:0;
+	right:0;
+	margin:auto;
+	display:none;
+}
+
+.myButtonWrapper{
+	position:absolute;
+	left:0;
+	right:0;
+	top:0;
+	bottom:0;
+	margin:auto;
+	width:100%;
+	height: 100%;
+	display:table;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	cursor:pointer;
 }
 
 .myCard{
 	position:relative;
 	width:300px;
-	height:400px;
+	height:280px;
 	margin:10px;
 	float:left;
 	background: #ffd700;
+	text-align: left;
+	cursor:pointer;
 }
