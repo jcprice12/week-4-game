@@ -46,14 +46,19 @@ function Character(myId, myName, myHealth, myAttackPower, myCounterAttackPower, 
 Character.prototype.attack = function(enemy){
 	if(enemy instanceof Character){
 		console.log(this.getName() + " is attacking " + enemy.getName());
-		enemy.health.value = enemy.health.value - this.attackPower.value;
+		var enemyHealth = enemy.health.value - this.attackPower.value;
+		if(enemyHealth < 0 ){
+			enemy.health.value = 0;
+		} else {
+			enemy.health.value = enemyHealth;
+		}
 		this.attackPower.value = this.attackPower.value + this.getBaseAttackPower();
 		if(enemy.health.value > 0){
-			var damage = this.health.value - enemy.getCounterAttackPower().value;
-			if(damage < 0){
+			var myHealth = this.health.value - enemy.getCounterAttackPower().value;
+			if(myHealth < 0){
 				this.health.value = 0;
 			} else {
-				this.health.value = damage;
+				this.health.value = myHealth;
 			}
 		}
 	}
@@ -78,7 +83,7 @@ var myCharactersObj = {
 }
 
 var game = {
-	characters : myCharactersObj,
+	characters : createCharactersObject(),
 	playing : false,
 	hero : null,
 	enemies : null,
@@ -149,6 +154,7 @@ var game = {
 
 	executeWinState: function(){
 		console.log("you have won");
+		this.resetGame();
 	},
 
 	executeFight: function(){
@@ -164,8 +170,7 @@ var game = {
 
     	if(this.defendingCharacter.health.value <= 0){
     		this.removeEnemy();
-    	}
-    	if(this.hero.health.value <= 0){
+    	} else if(this.hero.health.value <= 0){
     		this.executeLoseState();
     	}
 	},
@@ -236,7 +241,37 @@ var game = {
 		}
 	},
 
+	resetGame: function(){
+		$("#outerCharacterSelectContainer").css("display", "table");
+		this.characters = createCharactersObject();
+		this.playing = false;
+		this.hero = null;
+		this.enemies = null;
+		this.defendingCharacter = null;
+		$("#outerCharacterSelectContainer").animate({
+		    top: "0%",
+		}, "2000", function() {
+			//code executed after animation
+			$("#enemyCharacters").html("");
+			$("#chosenCharacter").html("");
+			$("#defendingCharacter").html("");
+			$("#fightButtonContainer").css("display", "none");
+		});
+		console.log(this);
+	},
+
 };
+
+function createCharactersObject(){
+	var characters = new Object();
+	characters["luke-skywalker"] = new Character("luke-skywalker", "Luke Skywalker", 100, 10, 5, "assets/images/lukeSkywalker.jpg");
+	characters["obi-wan-kenobi"] = new Character("obi-wan-kenobi", "Obi-Wan Kenobi", 50, 20, 20, "assets/images/obiWanKenobi.jpg");
+	characters["yoda"] = new Character("yoda", "Yoda", 50, 30, 5, "assets/images/yoda.jpg");
+	characters["palpatine"] = new Character("palpatine", "Palpatine", 45, 10, 30, "assets/images/palpatine.jpg");
+	characters["darth-vader"] = new Character("darth-vader", "Darth Vader", 120, 7, 15, "assets/images/darthVader.jpg");
+	characters["boba-fett"] = new Character("boba-fett", "Boba Fett", 60, 14, 15, "assets/images/bobaFett.jpg");
+	return characters;
+}
 
 function resetButtonSize(element){
 	$(element).animate({
@@ -314,8 +349,8 @@ $( document ).ready(function() {
 
     $(document).on('mousedown', '.myButtonWrapper', function() {
     	$(this).animate({
-		    height: "82%",
-		    width: "94%",
+		    height: "85%",
+		    width: "97%",
 		}, 100, function() {
 			//code executed after animation
 		});

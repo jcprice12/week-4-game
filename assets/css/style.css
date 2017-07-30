@@ -85,6 +85,19 @@ h2{
 	margin-right: auto;
 }
 
+#gameOverScreen{
+	background-image: url("../images/stardust.png");
+	z-index: 99;
+	bottom:0;
+	height:320px;
+	width:100%;
+}
+
+#middleGameOverScreen{
+	background-color: black;
+	background: rgba(0, 0, 0, 0.5);
+}
+
 #mainContentHeader{
 	background-color: black;
 	background: rgba(0, 0, 0, 0.5);
