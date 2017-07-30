@@ -19,6 +19,16 @@ h2{
 	padding-bottom: 15px;
 }
 
+.cardCover{
+	position:absolute;
+	top:0; 
+	left:0; 
+	width:100%; 
+	height:100%; 
+	background-color: black; 
+	opacity: 0.5;
+}
+
 .cardsHolder{
 	text-align: center;
 }
@@ -62,13 +72,17 @@ h2{
 }
 
 #combatBoard{
-	width:100%;
 	position:relative;
 	text-align: center;
 }
 
 .combatBoardElement{
 	display:inline-block;
+	position:relative;
+	left:0;
+	right:0;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 #mainContentHeader{
@@ -98,15 +112,15 @@ h2{
 	background-color: #ffd700;
 	color:#444349;
 	text-align:center;
-	font-size: 26px;
+	font-size: 24px;
 	display: table-cell;
 	vertical-align: middle;
 }
 
 .myButtonContainer{
 	position:relative;
-	width:240px;
-	height:80px;
+	width:250px;
+	height:50px;
 }
 
 #fightButtonContainer{
@@ -195,4 +209,80 @@ h2{
     margin-left: auto;
     margin-right: auto; 
     width: auto;
+}
+
+.messageBoxContainer{
+    position:absolute;
+    z-index: 99999;
+    top:40%;
+    left:0;
+    right:0;
+    margin:0 auto;
+    width:600px;
+    text-align: center;
+}
+
+.messageBoxButtonContainer{
+    position:relative;
+    float:right;
+    display:inline-block;
+}
+
+.messageBoxElement{
+    margin-bottom: 10px;
+}
+
+.messageBoxWrapper{
+    font-family:Arial, sans-serif;
+    color:#2f2f2f;
+    min-width:400px;
+    text-align: left;
+    display: inline-block;
+    background-color: #eee;
+    border-radius:4px;
+    box-shadow: 5px 5px 15px #000;
+}
+
+.messageBoxWrapper2{
+    position:relative;
+    margin:10px;
+    clear:both;
+}
+
+.messageBoxHeader{
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.myMessageBoxFloatLeft{
+    float:left;
+}
+
+.myMessageBoxButton{
+    float:left;
+    background-color: #ccc;
+    border-radius: 4px;
+    font-size: 22px;
+    padding:4px 10px 4px 10px;
+    margin-left: 10px;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    cursor:pointer;
+}
+
+.myMessageBoxButton:active{
+    background-color: #b3b3b3;
+}
+
+.messageBoxOverlay{
+    top:-100%;
+    left:0;
+    position:fixed;
+    z-index: 9999;
+    width:100%;
+    height:100%;
 }

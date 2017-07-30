@@ -91,7 +91,7 @@ var game = {
 		return info;
 	},
 
-	buildCharacterCard: function(id, character, float){
+	buildCharacterCard: function(id, character, defeated){
 		var myCardContainer= $("<div>");
 		myCardContainer.addClass("myCardContainer");
 		myCardContainer.attr("data-character", id);
@@ -101,9 +101,6 @@ var game = {
 
 		var card = $("<div>");
 		card.addClass(MY_CARD_CLASS);
-		if(float){
-			card.addClass(LEFT_CLASS);
-		}
 
 		var cardWrapper = $("<div>");
 		cardWrapper.attr("class", "cardWrapper");
@@ -126,6 +123,11 @@ var game = {
 		cardWrapper.append(imageWrapper);
 		cardWrapper.append(characterInformation);
 		card.append(cardWrapper);
+		if(defeated){
+			var cardCover = $("<div>");
+			cardCover.addClass("cardCover");
+			card.append(cardCover);
+		}
 		myCardContainerInner.append(card);
 		myCardContainer.append(myCardContainerInner);
 
@@ -133,9 +135,9 @@ var game = {
 
 	},
 
-	buildCharacterRow: function(myElement,appendedClass,myCharacters,float){
+	buildCharacterRow: function(myElement,appendedClass,myCharacters,defeated){
 		for (var id in myCharacters) {
-			var card = this.buildCharacterCard(id, myCharacters[id], float);
+			var card = this.buildCharacterCard(id, myCharacters[id], defeated);
 			card.addClass(appendedClass);
 		    myElement.append(card);
 		}
@@ -149,14 +151,88 @@ var game = {
 		console.log("you have won");
 	},
 
+	executeFight: function(){
+		//var heading = game.hero.getName() + " attacked " + game.defendingCharacter.getName();
+    	//var message = "<p>" + game.hero.getName() + " dealt " + game.hero.attackPower.value + " damage to " + game.defendingCharacter.getName() + "</p>";
+    	this.hero.attack(this.defendingCharacter);
+    	var newHeroCard = this.buildCharacterCard(this.hero.getId(),this.hero,false);
+    	var newDefenderCard = this.buildCharacterCard(this.defendingCharacter.getId(),this.defendingCharacter,false);
+    	$("#chosenCharacter").html(newHeroCard);
+    	$("#defendingCharacter").html(newDefenderCard);
+
+    	//createMessageBox(heading, message);
+
+    	if(this.defendingCharacter.health.value <= 0){
+    		this.removeEnemy();
+    	}
+    	if(this.hero.health.value <= 0){
+    		this.executeLoseState();
+    	}
+	},
+
 	removeEnemy: function(){
 		var defendingCharacterId = this.defendingCharacter.getId();
+		var villainCard = this.buildCharacterCard(this.defendingCharacter.getId(), this.defendingCharacter, true);
+		villainCard.addClass(ENEMIES_CLASS);
+		$("#enemyCharacters").append(villainCard);
 		$("#fightButtonContainer").css("display", "none");
 		$("#defendingCharacter").html("");
 		delete this.enemies[defendingCharacterId];
 		this.defendingCharacter = null;
 		if($.isEmptyObject(this.enemies)){
 			this.executeWinState();
+		}
+	},
+
+	chooseCharacter: function(myId){
+		if(this.playing === false){//unneccessary?
+    		//$("#characterSelect").hide();
+	    	var myEnemies = {};
+	    	this.playing = true;
+	    	for (var id in this.characters) {
+				if (this.characters.hasOwnProperty(id)) {
+					if(myId === id) {
+				    	this.hero = this.characters[id];
+				    	var heroCard = this.buildCharacterCard(myId, this.hero, false);
+				    	heroCard.addClass(CHOSEN_CHAR_CLASS);
+				    	$("#chosenCharacter").append(heroCard);
+				  	} else {
+				  		myEnemies[id] = this.characters[id];
+				  	}
+				}
+			}
+	    	this.enemies = myEnemies;
+    		this.buildCharacterRow($("#enemyCharacters"), ENEMIES_CLASS, this.enemies, false);
+    		$("#outerCharacterSelectContainer").animate({
+			    top: "-100%",
+			}, "2000", function() {
+				//code executed after animation
+				$(this).css("display", "none");
+			});
+    	}
+	},
+
+	switchEnemy: function(characterId, thisElement){
+		if(this.playing && (this.enemies.hasOwnProperty(characterId))){//unneccessary?
+			$("#fightButtonContainer").css("display", "block");
+			if(!(this.defendingCharacter)){
+				this.defendingCharacter = this.characters[characterId];
+				var defenderCard = this.buildCharacterCard(characterId, this.defendingCharacter, false);
+				defenderCard.addClass(DEFEND_CHAR_CLASS);
+				$("#defendingCharacter").append(defenderCard);
+				thisElement.remove();
+			}else{
+				thisElement.remove();
+
+				var villainCard = this.buildCharacterCard(this.defendingCharacter.getId(), this.defendingCharacter, false);
+				villainCard.addClass(ENEMIES_CLASS);
+				$("#enemyCharacters").append(villainCard);
+
+				this.defendingCharacter = this.characters[characterId];
+				var defenderCard = this.buildCharacterCard(characterId, this.defendingCharacter, false);
+				defenderCard.addClass(DEFEND_CHAR_CLASS);
+				$("#defendingCharacter").html(defenderCard);
+			}
 		}
 	},
 
@@ -171,6 +247,31 @@ function resetButtonSize(element){
 	});
 }
 
+function popOutCard(thisElement){
+	thisElement.clearQueue();
+	thisElement.animate({
+	    height: "100%",
+	    width: "100%",
+	    "font-size": "15px",
+	}, 100, function() {
+		//code executed after animation
+	});
+}
+
+function flickerOn(element){
+	$(element).css("color", "#ffd700");
+	setTimeout(function(){ 
+		flickerOff(element);
+	}, 1000);
+}
+
+function flickerOff(element){
+	$(element).css("color", "#000");
+	setTimeout(function(){ 
+		flickerOn(element);
+	}, 1000);
+}
+
 /************************************************************************************
 Executed Code and Event Listeners
 ************************************************************************************/
@@ -183,15 +284,11 @@ $( document ).ready(function() {
 
 	$(document).on('mouseenter', '.myCardContainerInner', function() {
 		var thisElement = $(this);
-		if($(this).parent().hasClass(ENEMIES_CLASS) || $(this).parent().hasClass(CHAR_SELECT_CLASS)){
-			$(thisElement).clearQueue();
-			$(thisElement).animate({
-			    height: "100%",
-			    width: "100%",
-			    "font-size": "15px",
-			}, 100, function() {
-				//code executed after animation
-			});
+		var characterId = thisElement.parent().attr("data-character");
+		if(thisElement.parent().hasClass(CHAR_SELECT_CLASS)){
+			popOutCard(thisElement);
+		} else if(thisElement.parent().hasClass(ENEMIES_CLASS) && game.enemies.hasOwnProperty(characterId)){
+			popOutCard(thisElement);
 		}
 	});
 
@@ -206,56 +303,13 @@ $( document ).ready(function() {
 	});
 
     $(document).on('click', ('.'+ CHAR_SELECT_CLASS), function() {
-    	if(game.playing === false){//unneccessary?
-    		//$("#characterSelect").hide();
-	    	var myEnemies = {};
-	    	var myId = $(this).attr("data-character");
-	    	game.playing = true;
-	    	for (var id in game.characters) {
-				if (game.characters.hasOwnProperty(id)) {
-					if(myId === id) {
-				    	game.hero = game.characters[id];
-				    	var heroCard = game.buildCharacterCard(myId, game.hero, false);
-				    	heroCard.addClass(CHOSEN_CHAR_CLASS);
-				    	$("#chosenCharacter").append(heroCard);
-				  	} else {
-				  		myEnemies[id] = game.characters[id];
-				  	}
-				}
-			}
-	    	game.enemies = myEnemies;
-    		game.buildCharacterRow($("#enemyCharacters"), ENEMIES_CLASS, game.enemies, false);
-    		$("#outerCharacterSelectContainer").animate({
-			    top: "-100%",
-			}, "2000", function() {
-				//code executed after animation
-			});
-    	} 
+    	var myId = $(this).attr("data-character");
+    	game.chooseCharacter(myId);
     });
 
     $(document).on('click', ('.' + ENEMIES_CLASS), function() {
-    	if(game.playing){//unneccessary?
-    		var characterId = $(this).attr("data-character");
-    		$("#fightButtonContainer").css("display", "block");
-    		if(!(game.defendingCharacter)){
-				game.defendingCharacter = game.characters[characterId];
-				var defenderCard = game.buildCharacterCard(characterId, game.defendingCharacter, false);
-				defenderCard.addClass(DEFEND_CHAR_CLASS);
-				$("#defendingCharacter").append(defenderCard);
-				$(this).remove();
-    		}else{
-				$(this).remove();
-
-				var villainCard = game.buildCharacterCard(game.defendingCharacter.getId(), game.defendingCharacter, false);
-				villainCard.addClass(ENEMIES_CLASS);
-				$("#enemyCharacters").append(villainCard);
-
-				game.defendingCharacter = game.characters[characterId];
-				var defenderCard = game.buildCharacterCard(characterId, game.defendingCharacter, false);
-				defenderCard.addClass(DEFEND_CHAR_CLASS);
-				$("#defendingCharacter").html(defenderCard);
-    		}
-    	}
+    	var characterId = $(this).attr("data-character");
+    	game.switchEnemy(characterId, $(this));
     });
 
     $(document).on('mousedown', '.myButtonWrapper', function() {
@@ -269,35 +323,61 @@ $( document ).ready(function() {
 
 	$(document).on('mouseup', '.myButtonWrapper', function() {
     	resetButtonSize($(this));
-    	game.hero.attack(game.defendingCharacter);
-    	var newHeroCard = game.buildCharacterCard(game.hero.getId(),game.hero,false);
-    	var newDefenderCard = game.buildCharacterCard(game.defendingCharacter.getId(),game.defendingCharacter,false);
-    	$("#chosenCharacter").html(newHeroCard);
-    	$("#defendingCharacter").html(newDefenderCard);
-    	if(game.defendingCharacter.health.value <= 0){
-    		game.removeEnemy();
-    	}
-    	if(game.hero.health.value <= 0){
-    		game.executeLoseState();
-    	}
+    	game.executeFight();
 	});
 
 	$(document).on('mouseout', '.myButtonWrapper', function() {
     	resetButtonSize($(this));
 	});
 
-	function flickerOn(element){
-		$(element).css("color", "#ffd700");
-		setTimeout(function(){ 
-			flickerOff(element);
-		}, 1000);
-	}
+	function deleteMessageBox(element){
+        $(".messageBoxOverlay").remove();
+    }
 
-	function flickerOff(element){
-		$(element).css("color", "#000");
-		setTimeout(function(){ 
-			flickerOn(element);
-		}, 1000);
-	}
+    $(document).on('click', ('.myMessageBoxButtonOkButton'), function() {
+        var element = $(this);
+        deleteMessageBox(element);
+    });
+
+    function createMessageBox(heading, message){
+        var messageBoxContainer = $("<div>");
+        messageBoxContainer.addClass("messageBoxContainer");
+        var messageBoxWrapper = $("<div>");
+        messageBoxWrapper.addClass("messageBoxWrapper");
+        var messageBoxWrapper2 = $("<div>");
+        messageBoxWrapper2.addClass("messageBoxWrapper2");
+        var messageBoxHeader = $("<div>");
+        messageBoxHeader.addClass("messageBoxHeader");
+        messageBoxHeader.addClass("messageBoxElement");
+        messageBoxHeader.html(heading);
+        var messageBoxMessage = $("<div>");
+        messageBoxMessage.addClass("messageBoxMessage");
+        messageBoxMessage.addClass("messageBoxElement");
+        messageBoxMessage.html(message);
+        var messageBoxButtonContainer = $("<div>");
+        messageBoxButtonContainer.addClass("messageBoxButtonContainer");
+        messageBoxButtonContainer.addClass("messageBoxElement");
+        var messageBoxButton = $("<div>");
+        messageBoxButton.addClass("myMessageBoxButton");
+        messageBoxButton.addClass("myMessageBoxButtonOkButton");
+        messageBoxButton.html("OK");
+
+        messageBoxButtonContainer.append(messageBoxButton);
+        messageBoxWrapper2.append(messageBoxHeader);
+        messageBoxWrapper2.append(messageBoxMessage);
+        messageBoxWrapper2.append(messageBoxButtonContainer);
+        messageBoxWrapper.append(messageBoxWrapper2);
+        messageBoxContainer.append(messageBoxWrapper);
+
+        var messageBoxOverlay = $("<div>");
+        messageBoxOverlay.addClass("messageBoxOverlay");
+        $(messageBoxOverlay).append(messageBoxContainer);
+        $("body").append(messageBoxOverlay);
+        $(messageBoxOverlay).animate({
+            top: "0%",
+        }, "1000", function() {
+
+        });
+    }
 
 });
