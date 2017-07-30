@@ -65,6 +65,8 @@ var CHOSEN_CHAR_CLASS = "chosenChar";
 var CHAR_SELECT_CLASS = "availableChar";
 var DEFEND_CHAR_CLASS = "defendChar";
 var LEFT_CLASS = "left";
+var MY_CARD_CONTAINER_CLASS = "myCardContainer";
+var MY_CARD_CONTAINER_INNER_CLASS = "myCardContainerInner";
 
 var myCharactersObj = {
 	"luke-skywalker" : new Character("luke-skywalker", "Luke Skywalker", 100, 10, 5, "assets/images/lukeSkywalker.jpg"),
@@ -90,12 +92,18 @@ var game = {
 	},
 
 	buildCharacterCard: function(id, character, float){
+		var myCardContainer= $("<div>");
+		myCardContainer.addClass("myCardContainer");
+		myCardContainer.attr("data-character", id);
+
+		var myCardContainerInner = $("<div>");
+		myCardContainerInner.addClass("myCardContainerInner");
+
 		var card = $("<div>");
 		card.addClass(MY_CARD_CLASS);
 		if(float){
 			card.addClass(LEFT_CLASS);
 		}
-		card.attr("data-character", id);
 
 		var cardWrapper = $("<div>");
 		cardWrapper.attr("class", "cardWrapper");
@@ -118,7 +126,10 @@ var game = {
 		cardWrapper.append(imageWrapper);
 		cardWrapper.append(characterInformation);
 		card.append(cardWrapper);
-		return card;
+		myCardContainerInner.append(card);
+		myCardContainer.append(myCardContainerInner);
+
+		return myCardContainer;
 
 	},
 
@@ -167,6 +178,28 @@ Executed Code and Event Listeners
 $( document ).ready(function() {
 
 	game.buildCharacterRow($("#characterSelect"), CHAR_SELECT_CLASS, game.characters, false);
+	flickerOn($("#chooseTitle"));
+
+	$(document).on('mouseenter', '.myCardContainerInner', function() {
+		$(this).clearQueue();
+		$(this).animate({
+		    height: "100%",
+		    width: "100%",
+		    "font-size": "15px",
+		}, 100, function() {
+			//code executed after animation
+		});
+	});
+
+	$(document).on('mouseleave', '.myCardContainerInner', function() {
+		$(this).animate({
+		    height: "95%",
+		    width: "95%",
+		    "font-size": "14px",
+		}, 100, function() {
+			//code executed after animation
+		});
+	});
 
     $(document).on('click', ('.'+ CHAR_SELECT_CLASS), function() {
     	if(game.playing === false){//unneccessary?
@@ -249,5 +282,18 @@ $( document ).ready(function() {
     	resetButtonSize($(this));
 	});
 
+	function flickerOn(element){
+		$(element).css("color", "#ffd700");
+		setTimeout(function(){ 
+			flickerOff(element);
+		}, 1000);
+	}
+
+	function flickerOff(element){
+		$(element).css("color", "#000");
+		setTimeout(function(){ 
+			flickerOn(element);
+		}, 1000);
+	}
 
 });
