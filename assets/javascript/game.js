@@ -179,16 +179,20 @@ $( document ).ready(function() {
 
 	game.buildCharacterRow($("#characterSelect"), CHAR_SELECT_CLASS, game.characters, false);
 	flickerOn($("#chooseTitle"));
+	flickerOn($("#availableEnemiesHeader"));
 
 	$(document).on('mouseenter', '.myCardContainerInner', function() {
-		$(this).clearQueue();
-		$(this).animate({
-		    height: "100%",
-		    width: "100%",
-		    "font-size": "15px",
-		}, 100, function() {
-			//code executed after animation
-		});
+		var thisElement = $(this);
+		if($(this).parent().hasClass(ENEMIES_CLASS) || $(this).parent().hasClass(CHAR_SELECT_CLASS)){
+			$(thisElement).clearQueue();
+			$(thisElement).animate({
+			    height: "100%",
+			    width: "100%",
+			    "font-size": "15px",
+			}, 100, function() {
+				//code executed after animation
+			});
+		}
 	});
 
 	$(document).on('mouseleave', '.myCardContainerInner', function() {
