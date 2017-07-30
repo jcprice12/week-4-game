@@ -73,15 +73,6 @@ var LEFT_CLASS = "left";
 var MY_CARD_CONTAINER_CLASS = "myCardContainer";
 var MY_CARD_CONTAINER_INNER_CLASS = "myCardContainerInner";
 
-var myCharactersObj = {
-	"luke-skywalker" : new Character("luke-skywalker", "Luke Skywalker", 100, 10, 5, "assets/images/lukeSkywalker.jpg"),
-	"obi-wan-kenobi" : new Character("obi-wan-kenobi", "Obi-Wan Kenobi", 50, 20, 20, "assets/images/obiWanKenobi.jpg"),
-	"yoda" : new Character("yoda", "Yoda", 50, 30, 5, "assets/images/yoda.jpg"),
-	"palpatine" : new Character("palpatine", "Palpatine", 45, 10, 30, "assets/images/palpatine.jpg"),
-	"darth-vader" : new Character("darth-vader", "Darth Vader", 120, 7, 15, "assets/images/darthVader.jpg"),
-	"boba-fett" : new Character("boba-fett", "Boba Fett", 60, 14, 15, "assets/images/bobaFett.jpg"),
-}
-
 var game = {
 	characters : createCharactersObject(),
 	playing : false,
@@ -98,11 +89,11 @@ var game = {
 
 	buildCharacterCard: function(id, character, defeated){
 		var myCardContainer= $("<div>");
-		myCardContainer.addClass("myCardContainer");
+		myCardContainer.addClass(MY_CARD_CONTAINER_CLASS);
 		myCardContainer.attr("data-character", id);
 
 		var myCardContainerInner = $("<div>");
-		myCardContainerInner.addClass("myCardContainerInner");
+		myCardContainerInner.addClass(MY_CARD_CONTAINER_INNER_CLASS);
 
 		var card = $("<div>");
 		card.addClass(MY_CARD_CLASS);
@@ -150,29 +141,45 @@ var game = {
 
 	executeLoseState: function(){
 		console.log("you have lost");
+		var heading = this.hero.getName() + " has lost!";
+		var myPromise = createMessageBox(heading,"Press 'OK' to play again.");
+		myPromise.then(function(value){
+			game.resetGame();
+		});
 	},
 
 	executeWinState: function(){
 		console.log("you have won");
-		this.resetGame();
+		var heading = this.hero.getName() + " has won!";
+		var myPromise = createMessageBox(heading,"Press 'OK' to play again.");
+		myPromise.then(function(value){
+			game.resetGame();
+		});
 	},
 
 	executeFight: function(){
-		//var heading = game.hero.getName() + " attacked " + game.defendingCharacter.getName();
-    	//var message = "<p>" + game.hero.getName() + " dealt " + game.hero.attackPower.value + " damage to " + game.defendingCharacter.getName() + "</p>";
+
+		var oldHealth = this.hero.health.value;
     	this.hero.attack(this.defendingCharacter);
+    	var newHealth = this.hero.health.value;
+    	var receivedDamage  = oldHealth - newHealth;
     	var newHeroCard = this.buildCharacterCard(this.hero.getId(),this.hero,false);
     	var newDefenderCard = this.buildCharacterCard(this.defendingCharacter.getId(),this.defendingCharacter,false);
     	$("#chosenCharacter").html(newHeroCard);
     	$("#defendingCharacter").html(newDefenderCard);
 
     	//createMessageBox(heading, message);
-
-    	if(this.defendingCharacter.health.value <= 0){
-    		this.removeEnemy();
-    	} else if(this.hero.health.value <= 0){
-    		this.executeLoseState();
-    	}
+    	var heading = game.hero.getName() + " attacked " + game.defendingCharacter.getName();
+		var message = "<p>" + game.hero.getName() + " dealt " + game.hero.attackPower.value + " damage to " + game.defendingCharacter.getName() + "</p>";
+		message = message + "<p>" + game.hero.getName() + " received " + receivedDamage  + " damage from " + game.defendingCharacter.getName() + "</p>";
+		var myPromise = createMessageBox(heading,message);
+		myPromise.then(function(value){
+			if(game.defendingCharacter.health.value <= 0){
+    			game.removeEnemy();
+	    	} else if(game.hero.health.value <= 0){
+	    		game.executeLoseState();
+	    	}
+		});
 	},
 
 	removeEnemy: function(){
@@ -182,11 +189,15 @@ var game = {
 		$("#enemyCharacters").append(villainCard);
 		$("#fightButtonContainer").css("display", "none");
 		$("#defendingCharacter").html("");
-		delete this.enemies[defendingCharacterId];
-		this.defendingCharacter = null;
-		if($.isEmptyObject(this.enemies)){
-			this.executeWinState();
-		}
+		var heading = this.hero.getName() + " defeated " + this.defendingCharacter.getName();
+		var myPromise = createMessageBox(heading,"");
+		myPromise.then(function(value){
+			delete game.enemies[defendingCharacterId];
+			game.defendingCharacter = null;
+			if($.isEmptyObject(game.enemies)){
+				game.executeWinState();
+			}
+		});
 	},
 
 	chooseCharacter: function(myId){
@@ -210,7 +221,7 @@ var game = {
     		this.buildCharacterRow($("#enemyCharacters"), ENEMIES_CLASS, this.enemies, false);
     		$("#outerCharacterSelectContainer").animate({
 			    top: "-100%",
-			}, "2000", function() {
+			}, 700, function() {
 				//code executed after animation
 				$(this).css("display", "none");
 			});
@@ -250,7 +261,7 @@ var game = {
 		this.defendingCharacter = null;
 		$("#outerCharacterSelectContainer").animate({
 		    top: "0%",
-		}, "2000", function() {
+		}, 700, function() {
 			//code executed after animation
 			$("#enemyCharacters").html("");
 			$("#chosenCharacter").html("");
@@ -305,6 +316,70 @@ function flickerOff(element){
 	setTimeout(function(){ 
 		flickerOn(element);
 	}, 1000);
+}
+
+// var deleteMessageBox = function(){
+// 	return new Promise(function(resolve,reject){
+// 		$(".messageBoxOverlay").remove();
+// 		resolve("message box deleted");
+// 	});
+// }
+
+// function createMessageBoxButtons(buttonsObj){
+
+// }
+
+function createMessageBox(heading, message){
+    var messageBoxContainer = $("<div>");
+    messageBoxContainer.addClass("messageBoxContainer");
+    var messageBoxWrapper = $("<div>");
+    messageBoxWrapper.addClass("messageBoxWrapper");
+    var messageBoxWrapper2 = $("<div>");
+    messageBoxWrapper2.addClass("messageBoxWrapper2");
+    var messageBoxHeader = $("<div>");
+    messageBoxHeader.addClass("messageBoxHeader");
+    messageBoxHeader.addClass("messageBoxElement");
+    messageBoxHeader.html(heading);
+    var messageBoxMessage = $("<div>");
+    messageBoxMessage.addClass("messageBoxMessage");
+    messageBoxMessage.addClass("messageBoxElement");
+    messageBoxMessage.html(message);
+    var messageBoxButtonContainer = $("<div>");
+    messageBoxButtonContainer.addClass("messageBoxButtonContainer");
+    messageBoxButtonContainer.addClass("messageBoxElement");
+    var messageBoxButton = document.createElement("div");
+    $(messageBoxButton).addClass("myMessageBoxButton");
+    $(messageBoxButton).addClass("myMessageBoxButtonOkButton");
+    $(messageBoxButton).html("OK");
+
+
+    messageBoxButtonContainer.append(messageBoxButton);
+    messageBoxWrapper2.append(messageBoxHeader);
+    messageBoxWrapper2.append(messageBoxMessage);
+    messageBoxWrapper2.append(messageBoxButtonContainer);
+    messageBoxWrapper.append(messageBoxWrapper2);
+    messageBoxContainer.append(messageBoxWrapper);
+
+    var messageBoxOverlay = $("<div>");
+    messageBoxOverlay.addClass("messageBoxOverlay");
+    $(messageBoxOverlay).append(messageBoxContainer);
+    $("body").append(messageBoxOverlay);
+    $(messageBoxOverlay).animate({
+        top: "0%",
+    }, "1000", function() {
+
+    });
+
+    var messageBoxPromise = new Promise(function(resolve){
+	    messageBoxButton.addEventListener("click", function (){
+	    	messageBoxButton.removeEventListener("click", function(){
+	    		
+	    	});
+	    	messageBoxOverlay.remove();
+	    	resolve();
+	    }, false);
+	});
+	return messageBoxPromise;
 }
 
 /************************************************************************************
@@ -365,54 +440,9 @@ $( document ).ready(function() {
     	resetButtonSize($(this));
 	});
 
-	function deleteMessageBox(element){
-        $(".messageBoxOverlay").remove();
-    }
-
-    $(document).on('click', ('.myMessageBoxButtonOkButton'), function() {
-        var element = $(this);
-        deleteMessageBox(element);
-    });
-
-    function createMessageBox(heading, message){
-        var messageBoxContainer = $("<div>");
-        messageBoxContainer.addClass("messageBoxContainer");
-        var messageBoxWrapper = $("<div>");
-        messageBoxWrapper.addClass("messageBoxWrapper");
-        var messageBoxWrapper2 = $("<div>");
-        messageBoxWrapper2.addClass("messageBoxWrapper2");
-        var messageBoxHeader = $("<div>");
-        messageBoxHeader.addClass("messageBoxHeader");
-        messageBoxHeader.addClass("messageBoxElement");
-        messageBoxHeader.html(heading);
-        var messageBoxMessage = $("<div>");
-        messageBoxMessage.addClass("messageBoxMessage");
-        messageBoxMessage.addClass("messageBoxElement");
-        messageBoxMessage.html(message);
-        var messageBoxButtonContainer = $("<div>");
-        messageBoxButtonContainer.addClass("messageBoxButtonContainer");
-        messageBoxButtonContainer.addClass("messageBoxElement");
-        var messageBoxButton = $("<div>");
-        messageBoxButton.addClass("myMessageBoxButton");
-        messageBoxButton.addClass("myMessageBoxButtonOkButton");
-        messageBoxButton.html("OK");
-
-        messageBoxButtonContainer.append(messageBoxButton);
-        messageBoxWrapper2.append(messageBoxHeader);
-        messageBoxWrapper2.append(messageBoxMessage);
-        messageBoxWrapper2.append(messageBoxButtonContainer);
-        messageBoxWrapper.append(messageBoxWrapper2);
-        messageBoxContainer.append(messageBoxWrapper);
-
-        var messageBoxOverlay = $("<div>");
-        messageBoxOverlay.addClass("messageBoxOverlay");
-        $(messageBoxOverlay).append(messageBoxContainer);
-        $("body").append(messageBoxOverlay);
-        $(messageBoxOverlay).animate({
-            top: "0%",
-        }, "1000", function() {
-
-        });
-    }
+    // $(document).on('click', ('.myMessageBoxButtonOkButton'), function() {
+    //     //var element = $(this);
+    //     deleteMessageBox();
+    // });
 
 });
