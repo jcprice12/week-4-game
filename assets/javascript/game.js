@@ -22,6 +22,7 @@ function Character(myId, myName, myHealth, myAttackPower, myCounterAttackPower, 
 	var baseAttackPower = myAttackPower;
 	var imageSource = myImageSource;
 
+	//public methods to access private variables
 	this.getId = function(){
 		return id;
 	}
@@ -43,6 +44,8 @@ function Character(myId, myName, myHealth, myAttackPower, myCounterAttackPower, 
 	}
 };
 
+
+//attack method. enemies that are defeated once attacked so not cause damage to the attacking character
 Character.prototype.attack = function(enemy){
 	if(enemy instanceof Character){
 		console.log(this.getName() + " is attacking " + enemy.getName());
@@ -64,29 +67,46 @@ Character.prototype.attack = function(enemy){
 	}
 };
 
+
+/***************************************************************************************************
+Varibales and objects
+***************************************************************************************************/
+//some 'constants' to make swapping class names easier
 var MY_CARD_CLASS = "myCard";
 var ENEMIES_CLASS = "enemyChar";
 var CHOSEN_CHAR_CLASS = "chosenChar";
 var CHAR_SELECT_CLASS = "availableChar";
 var DEFEND_CHAR_CLASS = "defendChar";
-var LEFT_CLASS = "left";
 var MY_CARD_CONTAINER_CLASS = "myCardContainer";
 var MY_CARD_CONTAINER_INNER_CLASS = "myCardContainerInner";
+var CARD_WRAPPER_CLASS = "cardWrapper";
+var NAME_HEADER_CLASS = "nameHeader";
+var IMAGE_WRAPPER_CLASS = "imageWrapper";
+var CHARACTER_IMAGE_CLASS = "characterImage";
+var CHARACTER_INFORMATION_CLASS = "characterInformation";
+var INFO_CONTAINER_CLASS = "infoContainer";
+var CARD_COVER_CLASS = "cardCover";
+var MY_BUTTON_WRAPPER_CLASS = "myButtonWrapper";
 
+/***************************************************
+Game object, controls most aspects of the game
+***************************************************/
 var game = {
 	characters : createCharactersObject(),
 	playing : false,
-	hero : null,
-	enemies : null,
-	defendingCharacter : null,
+	hero : null,//chosen character
+	enemies : null,//characters that must be defeated to win
+	defendingCharacter : null,//character chose to fight against
 
+	//build stats on card
 	buildCharacterInformationDiv: function(information){
 		var info = $("<div>");
-		info.addClass("infoContainer");
+		info.addClass(INFO_CONTAINER_CLASS);
 		info.html(information.description + ": " + information.value);
 		return info;
 	},
 
+	//build card for character, important because the id of the character is linked to the data-character attribute of the html card
 	buildCharacterCard: function(id, character, defeated){
 		var myCardContainer= $("<div>");
 		myCardContainer.addClass(MY_CARD_CONTAINER_CLASS);
@@ -99,23 +119,23 @@ var game = {
 		card.addClass(MY_CARD_CLASS);
 
 		var cardWrapper = $("<div>");
-		cardWrapper.attr("class", "cardWrapper");
+		cardWrapper.attr("class", CARD_WRAPPER_CLASS);
 
 		var nameHeader = $("<div>");
-		nameHeader.addClass("nameHeader");
+		nameHeader.addClass(NAME_HEADER_CLASS);
 		nameHeader.html(character.getName());
 
 		var imageWrapper = $("<div>");
-		imageWrapper.addClass("imageWrapper");
+		imageWrapper.addClass(IMAGE_WRAPPER_CLASS);
 
 		var image = $("<img>");
-		image.addClass("characterImage");
+		image.addClass(CHARACTER_IMAGE_CLASS);
 		image.attr("src", character.getImageSource());
 		image.attr("alt", character.getName());
 		imageWrapper.append(image);
 
 		var characterInformation = $("<div>");
-		characterInformation.addClass("characterInformation");
+		characterInformation.addClass(CHARACTER_INFORMATION_CLASS);
 		characterInformation.append(this.buildCharacterInformationDiv(character.health));
 		characterInformation.append(this.buildCharacterInformationDiv(character.attackPower));
 		characterInformation.append(this.buildCharacterInformationDiv(character.getCounterAttackPower()));
@@ -126,7 +146,7 @@ var game = {
 		card.append(cardWrapper);
 		if(defeated){
 			var cardCover = $("<div>");
-			cardCover.addClass("cardCover");
+			cardCover.addClass(CARD_COVER_CLASS);
 			card.append(cardCover);
 		}
 		myCardContainerInner.append(card);
@@ -136,6 +156,7 @@ var game = {
 
 	},
 
+	//builds a row of character cards. appends the cards to 'myElement' (the row)
 	buildCharacterRow: function(myElement,appendedClass,myCharacters,defeated){
 		for (var id in myCharacters) {
 			var card = this.buildCharacterCard(id, myCharacters[id], defeated);
@@ -144,6 +165,7 @@ var game = {
 		}
 	},
 
+	//code to be run when the game has been lost
 	executeLoseState: function(){
 		console.log("you have lost");
 		var heading = this.hero.getName() + " has lost!";
@@ -153,6 +175,7 @@ var game = {
 		});
 	},
 
+	//code to be run when the game has been won
 	executeWinState: function(){
 		console.log("you have won");
 		var heading = this.hero.getName() + " has won!";
@@ -162,6 +185,9 @@ var game = {
 		});
 	},
 
+	//code to execute when the user presses the "fight button"
+	//calls the attack method against another character and edits html
+	//determines if the user has the lost the game or not
 	executeFight: function(){
 
 		var oldAttack = this.hero.attackPower.value;
@@ -188,6 +214,8 @@ var game = {
 		});
 	},
 
+	//code that is executed once an enemy has been defeated by the user's chosen character
+	//win state is determined here
 	removeEnemy: function(){
 		var defendingCharacterId = this.defendingCharacter.getId();
 		var villainCard = this.buildCharacterCard(this.defendingCharacter.getId(), this.defendingCharacter, true);
@@ -206,9 +234,10 @@ var game = {
 		});
 	},
 
+	//code that is execute when a character has been chosen by the user
+	//removes "title" screen
 	chooseCharacter: function(myId){
 		if(this.playing === false){//unneccessary?
-    		//$("#characterSelect").hide();
 	    	var myEnemies = {};
 	    	this.playing = true;
 	    	for (var id in this.characters) {
@@ -234,6 +263,8 @@ var game = {
     	}
 	},
 
+	//code that is executed when a user clicks an enemy card.
+	//places card in the defending character slot on the game board
 	switchEnemy: function(characterId, thisElement){
 		if(this.playing && (this.enemies.hasOwnProperty(characterId))){//unneccessary?
 			$("#fightButtonContainer").css("display", "block");
@@ -258,6 +289,7 @@ var game = {
 		}
 	},
 
+	//code that is executed once user decides to play a new game (perhaps after winning/losing)
 	resetGame: function(){
 		$("#outerCharacterSelectContainer").css("display", "table");
 		this.characters = createCharactersObject();
@@ -279,6 +311,11 @@ var game = {
 
 };
 
+/**********************************************************************************************************
+Miscellaneous functions - mostly used for animation
+**********************************************************************************************************/
+
+//used to instantiate a new object of characters
 function createCharactersObject(){
 	var characters = new Object();
 	characters["luke-skywalker"] = new Character("luke-skywalker", "Luke Skywalker", 120, 4, 8, "assets/images/lukeSkywalker.jpg");
@@ -290,6 +327,7 @@ function createCharactersObject(){
 	return characters;
 }
 
+//reset button to original dimensions
 function resetButtonSize(element){
 	$(element).animate({
 		height: "100%",
@@ -299,6 +337,7 @@ function resetButtonSize(element){
 	});
 }
 
+//used to "pop character card" out and at the user when he/she hovers over selectable card
 function popOutCard(thisElement){
 	thisElement.clearQueue();
 	thisElement.animate({
@@ -310,6 +349,8 @@ function popOutCard(thisElement){
 	});
 }
 
+//change color of text to yellow
+//calls flicker off
 function flickerOn(element){
 	$(element).css("color", "#ffd700");
 	setTimeout(function(){ 
@@ -317,6 +358,8 @@ function flickerOn(element){
 	}, 1000);
 }
 
+//change color of text to black
+//calls flicker on
 function flickerOff(element){
 	$(element).css("color", "#000");
 	setTimeout(function(){ 
@@ -324,6 +367,10 @@ function flickerOff(element){
 	}, 1000);
 }
 
+
+//function to create a messagebox with a given heading and message
+//returns a PROMISE to add event listener for ok button and remove that event listener when button is pressed. when the button is pressed and the overlay is destroyed,
+//the promise is resolved. This is necessary to prevent code after the message box appears to be executed until the user clicks "ok"
 function createMessageBox(heading, message){
     var messageBoxContainer = $("<div>");
     messageBoxContainer.addClass("messageBoxContainer");
@@ -365,6 +412,8 @@ function createMessageBox(heading, message){
 
     });
 
+    //important. use the "then()" method on the returned promise and a callback to execute code until only after this promise is resolved
+    //code in the callback waits to be executed until after user presses ok (because it is only resolved until then)
     var messageBoxPromise = new Promise(function(resolve){
 	    messageBoxButton.addEventListener("click", function (){
 	    	messageBoxButton.removeEventListener("click", function(){
@@ -383,11 +432,12 @@ Executed Code and Event Listeners
 //will there be issues with DOM loading like this?
 $( document ).ready(function() {
 
+	//builds the row of available characters to select from. essentially this line starts the whole game.
 	game.buildCharacterRow($("#characterSelect"), CHAR_SELECT_CLASS, game.characters, false);
 	flickerOn($("#chooseTitle"));
 	flickerOn($("#availableEnemiesHeader"));
 
-	$(document).on('mouseenter', '.myCardContainerInner', function() {
+	$(document).on('mouseenter', ('.' + MY_CARD_CONTAINER_INNER_CLASS), function() {
 		var thisElement = $(this);
 		var characterId = thisElement.parent().attr("data-character");
 		if(thisElement.parent().hasClass(CHAR_SELECT_CLASS)){
@@ -397,7 +447,7 @@ $( document ).ready(function() {
 		}
 	});
 
-	$(document).on('mouseleave', '.myCardContainerInner', function() {
+	$(document).on('mouseleave', ('.' + MY_CARD_CONTAINER_INNER_CLASS), function() {
 		$(this).animate({
 		    height: "95%",
 		    width: "95%",
@@ -417,7 +467,7 @@ $( document ).ready(function() {
     	game.switchEnemy(characterId, $(this));
     });
 
-    $(document).on('mousedown', '.myButtonWrapper', function() {
+    $(document).on('mousedown', ('.' + MY_BUTTON_WRAPPER_CLASS), function() {
     	$(this).animate({
 		    height: "92%",
 		    width: "97%",
@@ -426,12 +476,12 @@ $( document ).ready(function() {
 		});
 	});
 
-	$(document).on('mouseup', '.myButtonWrapper', function() {
+	$(document).on('mouseup', ('.' + MY_BUTTON_WRAPPER_CLASS), function() {
     	resetButtonSize($(this));
     	game.executeFight();
 	});
 
-	$(document).on('mouseout', '.myButtonWrapper', function() {
+	$(document).on('mouseout', ('.' + MY_BUTTON_WRAPPER_CLASS), function() {
     	resetButtonSize($(this));
 	});
 
