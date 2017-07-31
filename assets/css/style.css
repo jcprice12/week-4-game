@@ -112,6 +112,35 @@ h2{
     width: auto;
 }
 
+#instructionsButton {
+    position:fixed;
+    font-family:Arial, sans-serif;
+    color:#2f2f2f;
+    top:0;
+    left:0;
+    margin:10px;
+    z-index: 1000;
+    background-color: #ccc;
+    border-radius: 4px;
+    font-size: 22px;
+    padding:4px 10px 4px 10px;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    cursor:pointer;
+}
+
+#instructionsButton:active {
+	background-color: #b3b3b3;
+}
+
+#instructionsButton:hover {
+	background-color: #b3b3b3;
+}
+
 #mainContentContainer{
 	position:absolute;
 	top:0;
@@ -232,7 +261,7 @@ Message Box Stuff
 .messageBoxContainer{
     position:absolute;
     z-index: 99999;
-    top:40%;
+    top:30%;
     left:0;
     right:0;
     margin:0 auto;

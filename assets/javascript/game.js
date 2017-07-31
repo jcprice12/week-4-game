@@ -485,4 +485,13 @@ $( document ).ready(function() {
     	resetButtonSize($(this));
 	});
 
+	$(document).on('click', "#instructionsButton", function() {
+		var message = "<p>Select a character to start playing. You will play as that character for the duration of the game.</p><br>";
+		var message = message + "<p>To win the game, you must defeat all of the enemies indicated in the 'Available Enemies to Fight' area.</p><br>";
+		var message = message + "<p>An enemy is 'defeated' once his/her health reaches 0. To select an enemy to fight, click on the corresponding character card in the 'Available Enemies to Fight' area. Click the 'FIGHT' button to fight that character.</p><br>";
+		var message = message + "<p>When you fight an enemy, you deal damage equal to your character's attack power. Whenever you attack an enemy, your attack power increases by the amount of attack power your character had at the beginning of the game. If you cannot kill your enemy with your attack, your character takes damage equal to that of the defending character's Counter Atttack power.</p><br>";
+		var message = message + "<p>You lose the game if your character's health reaches 0.</p><br>";
+    	var promise = createMessageBox("Instructions", message);
+    });
+
 });
