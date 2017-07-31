@@ -101,6 +101,10 @@ var game = {
 		var cardWrapper = $("<div>");
 		cardWrapper.attr("class", "cardWrapper");
 
+		var nameHeader = $("<div>");
+		nameHeader.addClass("nameHeader");
+		nameHeader.html(character.getName());
+
 		var imageWrapper = $("<div>");
 		imageWrapper.addClass("imageWrapper");
 
@@ -116,6 +120,7 @@ var game = {
 		characterInformation.append(this.buildCharacterInformationDiv(character.attackPower));
 		characterInformation.append(this.buildCharacterInformationDiv(character.getCounterAttackPower()));
 
+		cardWrapper.append(nameHeader);
 		cardWrapper.append(imageWrapper);
 		cardWrapper.append(characterInformation);
 		card.append(cardWrapper);
@@ -159,6 +164,7 @@ var game = {
 
 	executeFight: function(){
 
+		var oldAttack = this.hero.attackPower.value;
 		var oldHealth = this.hero.health.value;
     	this.hero.attack(this.defendingCharacter);
     	var newHealth = this.hero.health.value;
@@ -170,7 +176,7 @@ var game = {
 
     	//createMessageBox(heading, message);
     	var heading = game.hero.getName() + " attacked " + game.defendingCharacter.getName();
-		var message = "<p>" + game.hero.getName() + " dealt " + game.hero.attackPower.value + " damage to " + game.defendingCharacter.getName() + "</p>";
+		var message = "<p>" + game.hero.getName() + " dealt " + oldAttack + " damage to " + game.defendingCharacter.getName() + "</p>";
 		message = message + "<p>" + game.hero.getName() + " received " + receivedDamage  + " damage from " + game.defendingCharacter.getName() + "</p>";
 		var myPromise = createMessageBox(heading,message);
 		myPromise.then(function(value){
@@ -275,12 +281,12 @@ var game = {
 
 function createCharactersObject(){
 	var characters = new Object();
-	characters["luke-skywalker"] = new Character("luke-skywalker", "Luke Skywalker", 100, 10, 5, "assets/images/lukeSkywalker.jpg");
-	characters["obi-wan-kenobi"] = new Character("obi-wan-kenobi", "Obi-Wan Kenobi", 50, 20, 20, "assets/images/obiWanKenobi.jpg");
-	characters["yoda"] = new Character("yoda", "Yoda", 50, 30, 5, "assets/images/yoda.jpg");
-	characters["palpatine"] = new Character("palpatine", "Palpatine", 45, 10, 30, "assets/images/palpatine.jpg");
-	characters["darth-vader"] = new Character("darth-vader", "Darth Vader", 120, 7, 15, "assets/images/darthVader.jpg");
-	characters["boba-fett"] = new Character("boba-fett", "Boba Fett", 60, 14, 15, "assets/images/bobaFett.jpg");
+	characters["luke-skywalker"] = new Character("luke-skywalker", "Luke Skywalker", 120, 4, 8, "assets/images/lukeSkywalker.jpg");
+	characters["obi-wan-kenobi"] = new Character("obi-wan-kenobi", "Obi-Wan Kenobi", 60, 10, 7, "assets/images/obiWanKenobi.jpg");
+	characters["yoda"] = new Character("yoda", "Yoda", 50, 12, 6, "assets/images/yoda.jpg");
+	characters["palpatine"] = new Character("palpatine", "Palpatine", 40, 15, 30, "assets/images/palpatine.jpg");
+	characters["darth-vader"] = new Character("darth-vader", "Darth Vader", 150, 2.5, 15, "assets/images/darthVader.jpg");
+	characters["boba-fett"] = new Character("boba-fett", "Boba Fett", 100, 5, 25, "assets/images/bobaFett.jpg");
 	return characters;
 }
 
@@ -298,7 +304,7 @@ function popOutCard(thisElement){
 	thisElement.animate({
 	    height: "100%",
 	    width: "100%",
-	    "font-size": "15px",
+	    "font-size": "17px",
 	}, 100, function() {
 		//code executed after animation
 	});
@@ -317,17 +323,6 @@ function flickerOff(element){
 		flickerOn(element);
 	}, 1000);
 }
-
-// var deleteMessageBox = function(){
-// 	return new Promise(function(resolve,reject){
-// 		$(".messageBoxOverlay").remove();
-// 		resolve("message box deleted");
-// 	});
-// }
-
-// function createMessageBoxButtons(buttonsObj){
-
-// }
 
 function createMessageBox(heading, message){
     var messageBoxContainer = $("<div>");
@@ -406,7 +401,7 @@ $( document ).ready(function() {
 		$(this).animate({
 		    height: "95%",
 		    width: "95%",
-		    "font-size": "14px",
+		    "font-size": "16px",
 		}, 100, function() {
 			//code executed after animation
 		});
@@ -424,7 +419,7 @@ $( document ).ready(function() {
 
     $(document).on('mousedown', '.myButtonWrapper', function() {
     	$(this).animate({
-		    height: "85%",
+		    height: "92%",
 		    width: "97%",
 		}, 100, function() {
 			//code executed after animation
@@ -439,10 +434,5 @@ $( document ).ready(function() {
 	$(document).on('mouseout', '.myButtonWrapper', function() {
     	resetButtonSize($(this));
 	});
-
-    // $(document).on('click', ('.myMessageBoxButtonOkButton'), function() {
-    //     //var element = $(this);
-    //     deleteMessageBox();
-    // });
 
 });
